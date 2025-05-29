@@ -1,0 +1,27 @@
+{
+  "0": {
+    "name": "Laptop Camera",
+    "resolution": "1280x720",
+    "bitrate": "1.5 Mbps"
+  },
+  "1": {
+    "name": "USB Camera",
+    "resolution": "1920x1080",
+    "bitrate": "2 Mbps"
+  },
+  "rtsp://admin:QTCDRN@192.168.2.110:554/live1.264": {
+    "name": "RTSP Camera",
+    "resolution": "1920x1080",
+    "bitrate": "4 Mbps"
+  },
+  "https://10.213.68.34:8080/video": {
+    "name": "Phone Camera",
+    "resolution": "1920x1080",
+    "bitrate": "4 Mbps"
+  },
+  "E:/FallDetection/FallDetection/FallClipsTest/1.avi": {
+    "name": "Test With Video",
+    "resolution": "1920x1080",
+    "bitrate": "4 Mbps"
+  }
+}

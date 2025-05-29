@@ -1,0 +1,12 @@
+[
+  {
+    "time": "2025-05-28 09:38:55",
+    "video": "static/history\\fall_alert_20250528_093854.mp4",
+    "confidence": 0.1
+  },
+  {
+    "time": "2025-05-24 17:15:15",
+    "video": "static/history\\fall_alert_20250524_171515.mp4",
+    "confidence": 0.5
+  }
+]

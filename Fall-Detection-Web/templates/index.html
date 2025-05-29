@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Fall Detection System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    .main-container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    section {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .config-section,
+    .history-section {
+      flex: 1 1 300px;
+      max-width: 320px;
+    }
+
+    /* Cột video */
+    .video-section {
+      display: flex;
+      flex-direction: column;     /* Xếp các phần tử theo chiều dọc */
+      flex: 1 1 400px;            /* Cột video chiếm tối thiểu 400px */
+      text-align: center;
+      position: relative;         /* Để các phần tử con có thể được đặt chính xác */
+      height: 100%;               /* Chiếm hết chiều cao có sẵn */
+    }
+
+    /* Video container */
+    .video-container {
+      flex-grow: 1;               /* Làm cho phần video chiếm hết không gian còn lại */
+      display: flex;              /* Đảm bảo video không bị kéo dãn */
+      justify-content: center;    /* Căn giữa video */
+    }
+
+    .video-container img {
+      max-width: 100%;            /* Giới hạn chiều rộng của video */
+      height: auto;               /* Giữ tỷ lệ video */
+    }
+
+    /* Thông báo phát triển */
+    .development-info {
+      margin-top: auto;           /* Đẩy phần thông báo xuống dưới cùng */
+      padding: 10px;
+      background-color: rgba(0, 0, 0, 0.7);   /* Nền tối mờ */
+      color: white;
+      font-size: 14px;
+      text-align: center;
+      border-top: 2px solid #fff;   /* Đường viền phân cách */
+      box-sizing: border-box;       /* Đảm bảo padding không làm thay đổi kích thước */
+    }
+
+    /* Đảm bảo email là link có màu nổi */
+    .development-info a {
+      color: #ffeb3b;
+      text-decoration: none;
+    }
+
+    .development-info a:hover {
+      text-decoration: underline;
+    }
+
+
+    form {
+      margin-top: 15px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input, select, button {
+      padding: 10px;
+      margin-top: 5px;
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .checkbox-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .checkbox-column label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: normal;
+      white-space: nowrap;        /* Ngăn chữ xuống dòng */
+      padding: 5px 0;
+      width: 10px;
+    }
+
+    .toggle-btn {
+      margin-top: 10px;
+      background-color: #17a2b8;
+    }
+
+    .toggle-btn:hover {
+      background-color: #138496;
+    }
+
+    .manager-area {
+      display: none;
+      margin-top: 10px;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 10px;
+    }
+
+    li {
+      margin: 5px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    li button {
+      background-color: #dc3545;
+      margin-left: 10px;
+    }
+
+    #messageBox {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      display: none;
+      z-index: 1000;
+      font-size: 14px;
+    }
+
+    img {
+      width: 100%;
+      max-width: 100%;
+      border: 2px solid #333;
+      border-radius: 4px;
+    }
+
+    .history-container {
+      display: flex;
+      flex-direction: column;     /* Xếp các video theo chiều dọc */
+      gap: 15px;                  /* Khoảng cách giữa các video */
+    }
+
+    .history-card {
+      background: #f9f9f9;
+      border-radius: 5px;
+      padding: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .history-card video {
+      width: 100%;            /* Đảm bảo video chiếm toàn bộ chiều rộng của container */
+      max-width: 300px;       /* Kích thước video tối đa là 300px */
+      height: auto;           /* Tự động điều chỉnh chiều cao của video */
+      margin-bottom: 10px;    /* Khoảng cách giữa video và các thông tin */
+    }
+
+    .history-card p {
+      margin: 5px 0;
+    }
+
+    .history-card button {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .history-card button:hover {
+      background-color: #c82333;
+    }
+  </style>
+</head>
+<body>
+  <h1>Fall Detection System</h1>
+  <div id="messageBox"></div>
+
+  <div class="main-container">
+    <!-- Cột cấu hình -->
+    <section class="config-section">
+      <h3>⚙️ Cấu hình hệ thống</h3>
+      <form id="settingsForm">
+        <label for="camera_source">Chọn Camera:</label>
+        <select name="camera_source" id="camera_source">
+          <option value="0">Laptop Camera</option>
+          <option value="1">USB Camera</option>
+          <option value="rtsp://admin:QTCDRN@192.168.2.110:554/live1.264">RTSP Camera</option>
+          <option value="https://10.213.68.34:8080/video">Phone Camera</option>
+          <option value="E:/FallDetection/FallDetection/FallClipsTest/1.avi">Test With Video</option>
+        </select>
+
+        <div class="checkbox-column">
+          <label><input type="checkbox" name="enable_detection" id="enable_detection" /> Phát hiện ngã</label>
+          <label><input type="checkbox" name="enable_email" id="enable_email" /> Gửi Email</label>
+          <label><input type="checkbox" name="enable_sms" id="enable_sms" /> Gửi SMS</label>
+        </div>
+
+        <label for="conf">Ngưỡng phát hiện người (min:0 / max:1):</label>
+        <input type="number" name="conf" step="0.01" min="0" max="1" value="0.5" id="conf" required />
+      </form>
+
+      <!-- Quản lý email -->
+      <hr>
+      <h4>📧 Email cảnh báo</h4>
+      <button class="toggle-btn" onclick="toggleManager('email')">📋 Quản lý</button>
+      <div id="emailManager" class="manager-area">
+        <form id="emailForm">
+          <input type="email" name="email" placeholder="Thêm email" required />
+          <button type="submit">➕ Thêm</button>
+        </form>
+        <ul id="emails"></ul>
+      </div>
+
+      <!-- Quản lý phone -->
+      <hr>
+      <h4>📞 Số điện thoại</h4>
+      <button class="toggle-btn" onclick="toggleManager('phone')">📋 Quản lý</button>
+      <div id="phoneManager" class="manager-area">
+        <form id="phoneForm">
+          <input type="text" name="phone" placeholder="Thêm số điện thoại" required />
+          <button type="submit">➕ Thêm</button>
+        </form>
+        <ul id="phones"></ul>
+      </div>
+    </section>
+
+    <!-- Cột camera -->
+    <section class="video-section">
+      <h3>📺 Truyền hình ảnh thời gian thực</h3>
+      <img src="{{ url_for('video_feed') }}" alt="Video Feed" />
+
+      <!-- Thông báo về giai đoạn phát triển -->
+      <div class="development-info">
+        <p><strong>🔧 Hệ thống đang trong giai đoạn phát triển!</strong></p>
+        <p>Chúng tôi rất trân trọng mọi đóng góp, ý tưởng hoặc phản hồi để hoàn thiện hệ thống. </p>
+        <p>Nếu bạn có bất kỳ góp ý nào, xin vui lòng gửi email cho chúng tôi: <a href="mailto:huyhoangsuper246@gmail.com">Tại đây</a></p>
+      </div>
+    </section>
+
+    <!-- Cột lịch sử -->
+    <section class="history-section">
+      <h3>📽️ Lịch sử ngã</h3>
+
+      <!-- Bộ lọc ngày -->
+      <label for="dateFilter">📅 Chọn ngày:</label>
+      <input type="date" id="dateFilter" />
+
+      <button onclick="loadHistory()">🔍 Lọc</button>
+
+      <div class="history-container" id="historyContainer">
+        <!-- Lịch sử sẽ hiển thị tại đây -->
+      </div>
+    </section>
+  </div>
+
+  <!-- JavaScript xử lý -->
+  <script>
+    function showMessage(text, color = "#007bff") {
+      const box = document.getElementById("messageBox");
+      box.innerText = text;
+      box.style.backgroundColor = color;
+      box.style.display = "block";
+      setTimeout(() => box.style.display = "none", 4000);
+    }
+
+    function toggleManager(type) {
+      const manager = document.getElementById(type + "Manager");
+      manager.style.display = manager.style.display === "block" ? "none" : "block";
+    }
+
+    async function loadContacts() {
+      const res = await fetch("/get_contacts");
+      const data = await res.json();
+
+      const emailList = document.getElementById("emails");
+      const phoneList = document.getElementById("phones");
+      emailList.innerHTML = "";
+      phoneList.innerHTML = "";
+
+      data.emails.forEach(email => {
+        emailList.innerHTML += `<li>${email} <button onclick="deleteEmail('${email}')">❌</button></li>`;
+      });
+
+      data.phones.forEach(phone => {
+        phoneList.innerHTML += `<li>${phone} <button onclick="deletePhone('${phone}')">❌</button></li>`;
+      });
+    }
+
+    document.getElementById("emailForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const email = e.target.email.value.trim();
+      if (!email) return showMessage("❌ Email không được để trống.", "#dc3545");
+
+      const res = await fetch("/add_email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        showMessage("✅ " + result.message);
+        e.target.email.value = '';
+        loadContacts();
+      } else {
+        showMessage("❌ " + (result.error || result.message), "#dc3545");
+      }
+    };
+
+    async function loadHistory(limit = 5) {
+      const dateInput = document.getElementById("dateFilter").value;
+      const date = dateInput ? dateInput : "";
+
+      const res = await fetch(`/get_alerts?date=${date}`);
+      const data = await res.json();
+
+      const container = document.getElementById("historyContainer");
+      if (!data || data.length === 0) {
+        container.innerHTML = "<p>Không có cảnh báo nào.</p>";
+        return;
+      }
+
+      // 🔥 Giới hạn số lượng video hiển thị
+      const limitedData = data.slice(0, limit);
+
+      container.innerHTML = limitedData.map((item, idx) => `
+        <div class="history-card">
+          <video controls>
+            <source src="/${item.video}" type="video/mp4">
+            Trình duyệt không hỗ trợ video.
+          </video>
+          <p>🕒 Thời gian: ${item.time}</p>
+          <p>🎯 Độ tin cậy: ${item.confidence}</p>
+          <button onclick="deleteAlert('${item.time}')">❌ Xoá</button>
+        </div>
+      `).join("");
+
+      // Nếu có nhiều hơn limit cảnh báo, hiển thị nút "Xem thêm"
+      if (data.length > limit) {
+        const loadMoreBtn = document.createElement("button");
+        loadMoreBtn.innerText = "📂 Xem thêm";
+        loadMoreBtn.style.marginTop = "10px";
+        loadMoreBtn.onclick = () => loadHistory(limit + 10);  // Tải thêm 10
+        container.appendChild(loadMoreBtn);
+      }
+    }
+
+    async function deleteAlert(time) {
+      if (!confirm("Bạn có chắc chắn muốn xoá cảnh báo này?")) return;
+
+      try {
+        const res = await fetch("/delete_alert", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ time })
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          showMessage("✅ " + result.message);
+
+          // Xoá video khỏi DOM ngay lập tức (tùy chọn, giúp UI phản hồi nhanh hơn)
+          const videoElement = document.querySelector(`.history-card[data-time="${time}"]`);
+          if (videoElement) videoElement.remove();
+
+          loadHistory();  // Tải lại lịch sử sau khi xóa
+        } else {
+          showMessage("❌ " + result.message, "#dc3545");
+        }
+      } catch (error) {
+        showMessage("❌ Lỗi khi xoá: " + error.message, "#dc3545");
+      }
+    }
+
+
+
+    // Xoá lịch sử ngã
+    async function deleteHistory(timestamp) {
+      try {
+        const res = await fetch("/delete_history", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ timestamp })
+        });
+
+        const result = await res.json();
+        alert(result.message);  // Thông báo kết quả
+        loadHistory();  // Tải lại lịch sử sau khi xóa
+      } catch (error) {
+        console.error("Có lỗi xảy ra khi xoá lịch sử:", error);
+      }
+    }
+
+    // Load lịch sử khi trang được tải
+    window.onload = loadHistory();
+
+    document.getElementById("phoneForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const phone = e.target.phone.value.trim();
+      if (!phone) return showMessage("❌ Số điện thoại không được để trống.", "#dc3545");
+
+      const res = await fetch("/add_phone", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone })
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        showMessage("✅ " + result.message);
+        e.target.phone.value = '';
+        loadContacts();
+      } else {
+        showMessage("❌ " + (result.error || result.message), "#dc3545");
+      }
+    };
+
+    async function deleteEmail(email) {
+      if (!confirm("Bạn có chắc chắn muốn xoá email ${email}?")) return;
+      const res = await fetch("/delete_email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      const result = await res.json();
+      if (res.ok) {
+        showMessage("✅ " + result.message);
+        loadContacts();
+      } else {
+        showMessage("❌ " + (result.error || result.message), "#dc3545");
+      }
+    }
+
+    async function deletePhone(phone) {
+      if (!confirm("Bạn có chắc chắn muốn xoá số điện thoại ${phone}?")) return;
+      const res = await fetch("/delete_phone", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone })
+      });
+      const result = await res.json();
+      if (res.ok) {
+        showMessage("✅ " + result.message);
+        loadContacts();
+      } else {
+        showMessage("❌ " + (result.error || result.message), "#dc3545");
+      }
+    }
+
+    // Load contacts on page load
+    window.onload = () => {
+      loadContacts();
+    };
+
+    async function updateSetting(key, value) {
+      try {
+        const res = await fetch("/update_settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ key, value })
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+          showMessage("✅ " + result.message);
+        } else {
+          showMessage("❌ " + (result.error || result.message), "#dc3545");
+        }
+      } catch (err) {
+        showMessage("❌ Không thể cập nhật cấu hình.", "#dc3545");
+      }
+    }
+
+    // Gắn sự kiện tự động cập nhật cấu hình
+    document.getElementById("camera_source").addEventListener("change", (e) => {
+      updateSetting("camera_source", e.target.value);
+    });
+
+    document.getElementById("enable_detection").addEventListener("change", (e) => {
+      updateSetting("enable_detection", e.target.checked);
+    });
+
+    document.getElementById("enable_email").addEventListener("change", (e) => {
+      updateSetting("enable_email", e.target.checked);
+    });
+
+    document.getElementById("enable_sms").addEventListener("change", (e) => {
+      updateSetting("enable_sms", e.target.checked);
+    });
+
+    document.querySelector('input[name="conf"]').addEventListener("input", (e) => {
+      updateSetting("conf", parseFloat(e.target.value));
+    });
+
+    document.getElementById("settingsForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const key = formData.get("camera_source") ? "camera_source" : formData.get("enable_detection") ? "enable_detection" : formData.get("enable_email") ? "enable_email" : "enable_sms";
+      const value = formData.get(key);
+
+      const response = await fetch("/update_settings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ key: key, value: value })
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        showMessage(result.message);
+      } else {
+        showMessage("❌ " + result.error, "#dc3545");
+      }
+    };
+
+  </script>
+</body>
+</html>

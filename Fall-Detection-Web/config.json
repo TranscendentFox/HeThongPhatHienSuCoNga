@@ -1,0 +1,7 @@
+{
+  "camera_source": "0",
+  "enable_detection": true,
+  "enable_email": false,
+  "enable_sms": false,
+  "conf": 0.1
+}

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Lịch sử cảnh báo ngã</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f9f9f9;
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    .filter-container {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      background: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-container label {
+      margin-right: 5px;
+    }
+
+    .filter-container input,
+    .filter-container button {
+      padding: 5px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .filter-container button {
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+    }
+
+    .filter-container button:hover {
+      background-color: #0056b3;
+    }
+
+    #historyContainer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .alert-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      width: 320px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .alert-card p {
+      margin: 5px 0;
+    }
+
+    .alert-card button {
+      margin-top: 5px;
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .alert-card button:hover {
+      background-color: #c82333;
+    }
+  </style>
+</head>
+<body>
+  <h2>Lịch sử cảnh báo</h2>
+
+  <div class="filter-container">
+    <label for="dateFilter">Lọc theo ngày:</label>
+    <input type="date" id="dateFilter">
+
+    <label for="confFilter">Confidence ≥</label>
+    <input type="number" id="confFilter" step="0.01" min="0" max="1" value="0.5">
+
+    <button onclick="loadHistory()">Lọc</button>
+  </div>
+
+  <div id="historyContainer"></div>
+
+  <script>
+    async function loadHistory() {
+      const date = document.getElementById("dateFilter").value;
+      const min_conf = parseFloat(document.getElementById("confFilter").value || 0);
+      const res = await fetch(`/get_alerts?min_conf=${min_conf}&date=${date}`);
+      const data = await res.json();
+
+      const container = document.getElementById("historyContainer");
+      if (data.length === 0) {
+        container.innerHTML = "<p>Không có cảnh báo nào.</p>";
+        return;
+      }
+
+      container.innerHTML = data.map((item, idx) => `
+        <div class="alert-card">
+          <p>🕒 ${item.time}</p>
+          <p>🎯 Confidence: ${item.confidence}</p>
+          <video src="/${item.video}" controls width="100%"></video>
+          <button onclick="deleteAlert(${idx})">❌ Xoá</button>
+        </div>
+      `).join("");
+    }
+
+    async function deleteAlert(index) {
+      await fetch("/delete_alert", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ index })
+      });
+      loadHistory();
+    }
+
+    loadHistory();
+  </script>
+</body>
+</html>
