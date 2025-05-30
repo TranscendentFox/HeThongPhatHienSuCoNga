@@ -227,7 +227,7 @@ class FallDetector:
 if __name__ == "__main__":
     detector = FallDetector(
         video_path="FallClipsTest/thangbe.mp4",
-        model_path="yolov8s.pt",
+        model_path="yolov8-pose-finetune.pt",
         alert_sound="alert.mp3"
     )
     detector.run()
